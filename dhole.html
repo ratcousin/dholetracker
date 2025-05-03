@@ -3,10 +3,7 @@
 <head>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    body {
-      margin: 0;
-      background: transparent;
-    }
+    body { margin: 0; background: transparent; }
     .dhole-box {
       background: #FDE400;
       transform: rotate(5deg) skewX(-10deg);
@@ -22,19 +19,33 @@
       color: black;
       font-size: 14px;
     }
+    #debug { color: red; font-size: 10px; }
   </style>
 </head>
 <body>
   <div class="dhole-box">
     <div class="dhole-text" id="text">Loading...</div>
   </div>
+  <div id="debug"></div>
 
   <script>
-    // Update every 3 seconds
-    setInterval(async () => {
-      const response = await fetch('https://raw.githubusercontent.com/ratcousin/dholetracker/main/dhole.txt');
-      document.getElementById('text').textContent = await response.text();
-    }, 3000);
+    const DEBUG = document.getElementById('debug');
+    const TEXT_URL = 'https://raw.githubusercontent.com/ratcousin/dholetracker/main/dhole.txt?t=' + Date.now();
+    
+    DEBUG.textContent = `Testing URL: ${TEXT_URL}`;
+    
+    fetch(TEXT_URL)
+      .then(response => {
+        DEBUG.textContent += ` | Status: ${response.status}`;
+        return response.text();
+      })
+      .then(text => {
+        document.getElementById('text').textContent = text;
+        DEBUG.textContent += ` | Loaded: ${text}`;
+      })
+      .catch(error => {
+        DEBUG.textContent = `ERROR: ${error.message}`;
+      });
   </script>
 </body>
 </html>
