@@ -19,7 +19,13 @@
       color: black;
       font-size: 14px;
     }
-    #debug { color: red; font-size: 10px; }
+    #debug {
+      position: absolute;
+      bottom: -20px;
+      color: red;
+      font-size: 10px;
+      font-family: Arial;
+    }
   </style>
 </head>
 <body>
@@ -29,23 +35,30 @@
   <div id="debug"></div>
 
   <script>
-    const DEBUG = document.getElementById('debug');
-    const TEXT_URL = 'https://raw.githubusercontent.com/ratcousin/dholetracker/main/dhole.txt?t=' + Date.now();
+    const TEXT_URL = 'https://raw.githubusercontent.com/ratcousin/dholetracker/main/dhole.txt';
+    const debug = document.getElementById('debug');
     
-    DEBUG.textContent = `Testing URL: ${TEXT_URL}`;
-    
-    fetch(TEXT_URL)
-      .then(response => {
-        DEBUG.textContent += ` | Status: ${response.status}`;
-        return response.text();
-      })
-      .then(text => {
+    async function update() {
+      try {
+        const timestamp = Date.now();
+        const response = await fetch(`${TEXT_URL}?t=${timestamp}`);
+        
+        debug.textContent = `Last fetch: ${new Date().toLocaleTimeString()} | `;
+        debug.textContent += `Status: ${response.status} | `;
+        
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        
+        const text = await response.text();
         document.getElementById('text').textContent = text;
-        DEBUG.textContent += ` | Loaded: ${text}`;
-      })
-      .catch(error => {
-        DEBUG.textContent = `ERROR: ${error.message}`;
-      });
+        debug.textContent += `Content: "${text}"`;
+        
+      } catch (error) {
+        debug.textContent = `Error: ${error.message}`;
+      }
+    }
+    
+    update(); // Run immediately
+    setInterval(update, 3000); // Then every 3 seconds
   </script>
 </body>
 </html>
